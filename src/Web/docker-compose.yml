@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  signalr_demo:
+    # build: .
+    image: registry.cn-beijing.aliyuncs.com/syzh/signalr:latest
+    hostname: signalr_demo
+    container_name: signalr_demo
+    restart: always
+    ports:
+      - 8888:80
