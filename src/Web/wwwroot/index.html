@@ -1,0 +1,245 @@
+﻿<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>SignalR.netcore版-芒果网络</title>
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta name="referrer" content="no-referrer" />
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="./js/ui/lib/html5shiv.js"></script>
+    <script type="text/javascript" src="./js/ui/lib/respond.min.js"></script>
+    <![endif]-->
+    <link rel="stylesheet" type="text/css" href="./js/ui/static/h-ui/css/H-ui.min.css" />
+    <link rel="stylesheet" type="text/css" href="./js/ui/lib/Hui-iconfont/1.0.8/iconfont.min.css" />
+    <!--[if lt IE 9]>
+    <link href="./js/ui/static/h-ui/css/H-ui.ie.css" rel="stylesheet" type="text/css" />
+    <![endif]-->
+    <!--[if IE 6]>
+    <script type="text/javascript" src="./js/ui/lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+    <script>DD_belatedPNG.fix('*');</script>
+    <![endif]-->
+    <script src="./js/ui/lib/jquery/1.9.1/jquery.min.js"></script>
+    <script src="./js/ui/static/h-ui/js/H-ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.staticfile.org/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+    <script src="./js/ui/lib/layer/2.4/layer.js"></script>
+</head>
+
+<body ontouchstart>
+    <div class="sideBox">
+        <ul class="nav navbar-nav pt-20">
+            <li><a href="/">首页</a></li>
+            <li><a href="https://www.517.cn/">联系我们</a></li>
+        </ul>
+    </div>
+    <div class="containBox">
+        <div class="containBox-bg"></div>
+        <header class="navbar-wrapper">
+            <div class="navbar navbar-black navbar-fixed-top">
+                <div class="container cl">
+                    <a class="logo navbar-logo hidden-xs" href="/">Mango SignalR</a>
+                    <a class="logo navbar-logo-m visible-xs" href="/">Mango SignalR</a>
+                    <a aria-hidden="false" class="nav-toggle Hui-iconfont visible-xs JS-nav-toggle" href="javascript:;">&#xe667;</a>
+                    <nav class="nav navbar-nav nav-collapse" role="navigation" id="Hui-navbar">
+                        <ul class="cl">
+                            <li class="current">
+                                <a href="/">首页</a>
+                            </li>
+                            <li>
+                                <a href="https://www.517.cn/" target="_blank">联系我们</a>
+                            </li>
+                        </ul>
+                    </nav>
+                    <nav class="navbar-userbar hidden-xs"></nav>
+                </div>
+            </div>
+        </header>
+        <div id="newsapp" class="wap-container">
+            <div class="container ui-sortable">
+                <h1 class="hidden-xs">SignalR.netcore版-芒果网络</h1>
+                <h1 class="visible-xs">SignalR</h1>
+                <p>
+                    开始体验！<br />
+                    查询用户连接：http://xxxx/api/message/58988 <br />
+                    给指定用户发消息：http://xxxx/api/message/send?id=58988&msg=hello     <br />           
+                </p>
+                <div class="panel panel-default mt-20">
+                    <div class="panel-header">聊天室</div>
+                    <div class="panel-body">
+                        <div class="form form-horizontal responsive" v-show="!islogin">
+                            <div class="row cl">
+                                <label class="form-label col-xs-2">UserName：</label>
+                                <div class="formControls col-xs-9"><input type="text" v-model="username" class="input-text" /></div>
+                            </div>
+                            <div class="row cl">
+                                <label class="form-label col-xs-2">UserId：</label>
+                                <div class="formControls col-xs-9"><input type="text" v-model="userid" class="input-text" /></div>
+                            </div>
+                            <div class="row cl">
+                                <div class="col-xs-8 col-xs-offset-2">
+                                    <input type="button" v-on:click="login" value="登录" class="btn btn-primary" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form form-horizontal responsive" v-show="islogin">
+                            <div class="row cl">
+                                <label class="col-xs-8 col-xs-offset-2">{{username}}({{userid}})</label>
+                            </div>
+                            <div class="row cl">
+                                <label class="form-label col-xs-2">Message：</label>
+                                <div class="formControls col-xs-9"><input type="text" id="messageInput" class="input-text" /></div>
+                            </div>
+                            <div class="row cl">
+                                <div class="col-xs-8 col-xs-offset-2">
+                                    <input type="button" v-on:click="SendMessage" value="发送" class="btn btn-primary" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form form-horizontal responsive">
+                            <div class="row cl">
+                                <div class="col-6">
+                                    <ul id="messagesList"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <div id="modal-json" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content radius">
+                        <div class="modal-header">
+                            <h3 class="modal-title">格式化Json显示</h3>
+                            <a class="close" data-dismiss="modal" aria-hidden="true" href="javascript:void();">×</a>
+                        </div>
+                        <div class="modal-body">
+                            <p id="JsonView" v-html="jsonview"></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="./js/signalr/dist/browser/signalr.js"></script>
+    <script>
+        var app = new Vue({
+            el: '#newsapp',
+            data: {
+                connection: null,
+                jsonview: "",
+                islogin: false,
+                username: "钟海",
+                userid: "58988"
+            },
+            mounted: function () {
+                this.initData();
+            },
+            methods: {
+                initData: function () {
+                    this.connection = new signalR.HubConnectionBuilder().withUrl("/p2pHub").build();
+                },
+                login: function () {
+                    if (this.userid != "" && this.username != "") {
+                        $.cookie('userid', this.userid, { path: '/' });
+                        $.cookie('username', this.username, { path: '/' });
+                        this.connection.start().then(() => {
+                            this.islogin = true;
+                            this.ReceiveMessage();
+                        }).catch(function (err) {
+                            return console.error(err.toString());
+                        });
+                    }
+                },
+                ReceiveMessage: function () {
+                    this.connection.on("ReceiveMessage", function (user, message) {
+                        var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                        var encodedMsg = user + ":" + msg;
+                        var li = document.createElement("li");
+                        li.textContent = encodedMsg;
+                        document.getElementById("messagesList").appendChild(li);
+                    });
+                },
+                SendMessage: function () {
+                    var message = document.getElementById("messageInput").value;
+                    this.connection.invoke("SendMessage", this.username, message).catch(function (err) {
+                        return console.error(err.toString());
+                    });
+                }
+
+            }
+        })
+
+        $(function () {
+            initHtml();
+            stringFormat();
+        })
+        function initHtml() {
+            var _bodyHeight = $(window).height();
+            var _doch = $(document).height();
+            $(".containBox").height(_bodyHeight);
+            /*左右滑动菜单*/
+            $(".JS-nav-toggle").click(function () {
+                $("body").addClass('sideBox-open');
+                $(".containBox-bg").height(_bodyHeight).show();
+            });
+            $(".containBox-bg").click(function () {
+                $(this).hide();
+                $("body").removeClass('sideBox-open');
+            });
+        }
+        function stringFormat() {
+            if (!String.prototype.format) {
+                String.prototype.format = function () {
+                    var str = this.toString();
+                    if (!arguments.length)
+                        return str;
+                    var args = typeof arguments[0],
+                        args = (("string" == args || "number" == args) ? arguments : arguments[0]);
+                    for (arg in args)
+                        str = str.replace(RegExp("\\{" + arg + "\\}", "gi"), args[arg]);
+                    return str;
+                }
+            }
+        }
+    </script>
+    <script>
+        //格式化显示json
+        var formatJson = function (msg) {
+            var rep = "~";
+            var jsonStr = JSON.stringify(msg, null, rep)
+            var str = "";
+            for (var i = 0; i < jsonStr.length; i++) {
+                var text2 = jsonStr.charAt(i)
+                if (i > 1) {
+                    var text = jsonStr.charAt(i - 1)
+                    if (rep != text && rep == text2) {
+                        str += "<br/>"
+                    }
+                }
+                str += text2;
+            }
+            jsonStr = "";
+            for (var i = 0; i < str.length; i++) {
+                var text = str.charAt(i);
+                if (rep == text)
+                    jsonStr += "&nbsp;&nbsp;&nbsp;&nbsp;"
+                else {
+                    jsonStr += text;
+                }
+                if (i == str.length - 2)
+                    jsonStr += "<br/>"
+            }
+            return jsonStr;
+        }
+    </script>
+</body>
+</html>
