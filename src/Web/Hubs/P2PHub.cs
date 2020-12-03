@@ -9,7 +9,12 @@ namespace Web.Hubs
 {
     public class P2PHub : Hub
     {
-        public UserContext db => Startup.db;
+        public UserContext db;
+
+        public P2PHub(UserContext userdb)
+        {
+            db = userdb;
+        }
 
         /// <summary>
         /// 重写Hub连接事件

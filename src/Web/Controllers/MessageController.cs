@@ -16,12 +16,13 @@ namespace Web.Controllers
     {
         private readonly ILogger<MessageController> _logger;
         private readonly IHubContext<P2PHub> _hubContext;
-        public UserContext db => Startup.db;
+        public UserContext db;
 
-        public MessageController(ILogger<MessageController> logger, IHubContext<P2PHub> hubContext)
+        public MessageController(ILogger<MessageController> logger, IHubContext<P2PHub> hubContext, UserContext userdb)
         {
             _logger = logger;
             _hubContext = hubContext;
+            db = userdb;
         }
 
         // GET: api/Message

@@ -13,7 +13,6 @@ namespace Web
 {
     public class Startup
     {
-        public static UserContext db = new UserContext();
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -34,6 +33,7 @@ namespace Web
                           .SetIsOriginAllowed(str => true)
                           .AllowCredentials();
                }));
+            services.AddSingleton<UserContext>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
